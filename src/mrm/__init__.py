@@ -1,6 +1,3 @@
-from .logger import MRMLogger, MRMTrace
+﻿from src.mrm.logger import MRMLogger, MRMTrace
 
-__all__ = [
-    "MRMLogger",
-    "MRMTrace",
-]
+__all__ = ["MRMLogger", "MRMTrace"]

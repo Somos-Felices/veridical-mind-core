@@ -1,3 +1,5 @@
+﻿from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
@@ -15,6 +17,13 @@ class MRMTrace:
 
 
 class MRMLogger:
+    """
+    Minimal Sprint 1 Model Reliability Monitoring logger.
+
+    MRM is an append-only in-memory trace store for the prototype.
+    Persistent production storage can be added later.
+    """
+
     def __init__(self):
         self.records: list[MRMTrace] = []
 
@@ -33,7 +42,7 @@ class MRMLogger:
         trace = MRMTrace(
             timestamp=datetime.now(timezone.utc).isoformat(),
             category=category,
-            source_ids=source_ids,
+            source_ids=list(source_ids),
             ir_max=ir_max,
             ir_avg=ir_avg,
             icr=icr,
@@ -42,5 +51,4 @@ class MRMLogger:
         )
 
         self.records.append(trace)
-
         return trace

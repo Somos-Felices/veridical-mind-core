@@ -1,76 +1,174 @@
-from src.mcg import classify
+﻿from dataclasses import dataclass
+
 from src.mcg.gateway import GenerationGateway
+from src.mrec.ir import RankedUDV
+from src.mrm.logger import MRMLogger
 
 
+@dataclass
 class MockLLM:
-    def __init__(self):
-        self.calls = 0
+    calls: int = 0
+    prompts: list[str] | None = None
+
+    def __post_init__(self):
+        if self.prompts is None:
+            self.prompts = []
 
     def generate(self, prompt: str) -> str:
         self.calls += 1
-        return f"generated: {prompt}"
+        self.prompts.append(prompt)
+        return "mock generated response"
 
 
-def test_category_c_physically_suppresses_llm():
+def udv(identifier: str, ir: float) -> RankedUDV:
+    return RankedUDV(
+        id=identifier,
+        content=f"Evidence {identifier}",
+        source_doc=f"doc-{identifier}",
+        source_type="test",
+        icd=1.0,
+        similarity=ir,
+        ir=ir,
+        metadata={},
+    )
+
+
+def test_gateway_category_a_calls_llm_and_records_mrm():
     llm = MockLLM()
-    gateway = GenerationGateway(llm)
+    mrm = MRMLogger()
 
-    decision = classify(
-        ir_values=[0.20, 0.10, 0.05],
-        theta_a=0.75,
-        theta_b=0.40,
+    gateway = GenerationGateway(
+        llm_client=llm,
+        mrm_logger=mrm,
+        theta_a=0.70,
+        theta_b=0.25,
+        top_k=10,
     )
 
-    result = gateway.handle(
-        decision=decision,
-        prompt="This prompt must never reach the LLM.",
+    response = gateway.handle(
+        query="test query",
+        ranked_udvs=[
+            udv("a-1", 0.80),
+            udv("a-2", 0.40),
+        ],
+        prompt="answer using evidence",
     )
 
-    assert result.category == "C"
-    assert result.llm_invoked is False
+    assert response.category == "A"
+    assert response.llm_invoked is True
+    assert llm.calls == 1
+    assert response.icr is None
+
+    assert len(mrm.records) == 1
+
+    trace = mrm.records[0]
+
+    assert trace.category == "A"
+    assert trace.llm_invoked is True
+    assert trace.icr is None
+    assert trace.source_ids == ["a-1", "a-2"]
+    assert trace.ir_max == 0.80
+    assert abs(trace.ir_avg - 0.60) < 1e-9
+    assert trace.latency_ms >= 0
+
+
+def test_gateway_category_b_calls_llm_and_records_icr():
+    llm = MockLLM()
+    mrm = MRMLogger()
+
+    gateway = GenerationGateway(
+        llm_client=llm,
+        mrm_logger=mrm,
+        theta_a=0.70,
+        theta_b=0.25,
+        top_k=10,
+    )
+
+    response = gateway.handle(
+        query="partial evidence query",
+        ranked_udvs=[
+            udv("b-1", 0.60),
+            udv("b-2", 0.40),
+        ],
+        prompt="provide a qualified answer",
+    )
+
+    assert response.category == "B"
+    assert response.llm_invoked is True
+    assert llm.calls == 1
+    assert response.icr is not None
+
+    trace = mrm.records[0]
+
+    assert trace.category == "B"
+    assert trace.llm_invoked is True
+    assert trace.icr == response.icr
+    assert trace.ir_max == 0.60
+    assert abs(trace.ir_avg - 0.50) < 1e-9
+
+
+def test_gateway_category_c_physically_suppresses_llm():
+    llm = MockLLM()
+    mrm = MRMLogger()
+
+    gateway = GenerationGateway(
+        llm_client=llm,
+        mrm_logger=mrm,
+        theta_a=0.70,
+        theta_b=0.25,
+        top_k=10,
+    )
+
+    response = gateway.handle(
+        query="unsupported query",
+        ranked_udvs=[
+            udv("c-1", 0.10),
+            udv("c-2", 0.08),
+            udv("c-3", 0.05),
+        ],
+        prompt="THIS PROMPT MUST NEVER REACH THE LLM",
+    )
+
+    assert response.category == "C"
+    assert response.llm_invoked is False
+    assert response.icr is None
+
     assert llm.calls == 0
-    assert result.response == (
-        "I don't have sufficient documentary evidence to answer that."
-    )
+    assert llm.prompts == []
+
+    assert "sufficient documentary evidence" in response.response
+
+    assert len(mrm.records) == 1
+
+    trace = mrm.records[0]
+
+    assert trace.category == "C"
+    assert trace.llm_invoked is False
+    assert trace.icr is None
+    assert trace.source_ids == ["c-1", "c-2", "c-3"]
+    assert trace.ir_max == 0.10
+    assert abs(trace.ir_avg - (0.23 / 3)) < 1e-9
+    assert trace.latency_ms >= 0
 
 
-def test_category_a_allows_llm():
+def test_gateway_category_c_records_decision_latency():
     llm = MockLLM()
-    gateway = GenerationGateway(llm)
+    mrm = MRMLogger()
 
-    decision = classify(
-        ir_values=[0.80, 0.20],
-        theta_a=0.75,
-        theta_b=0.30,
+    gateway = GenerationGateway(
+        llm_client=llm,
+        mrm_logger=mrm,
+        theta_a=0.70,
+        theta_b=0.25,
+        top_k=10,
     )
 
-    result = gateway.handle(
-        decision=decision,
-        prompt="Who was Isidora Goyenechea?",
+    response = gateway.handle(
+        query="latency test",
+        ranked_udvs=[udv("latency-1", 0.05)],
+        prompt="must not be sent",
     )
 
-    assert result.category == "A"
-    assert result.llm_invoked is True
-    assert llm.calls == 1
-    assert result.response.startswith("generated:")
-
-
-def test_category_b_allows_llm_and_preserves_icr():
-    llm = MockLLM()
-    gateway = GenerationGateway(llm)
-
-    decision = classify(
-        ir_values=[0.60, 0.50, 0.40],
-        theta_a=0.75,
-        theta_b=0.45,
-    )
-
-    result = gateway.handle(
-        decision=decision,
-        prompt="Give a qualified answer.",
-    )
-
-    assert result.category == "B"
-    assert result.llm_invoked is True
-    assert llm.calls == 1
-    assert result.icr == decision.icr
+    assert response.category == "C"
+    assert response.trace.latency_ms >= 0
+    assert response.trace.latency_ms < 50.0
