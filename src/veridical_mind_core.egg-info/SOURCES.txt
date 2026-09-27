@@ -1,5 +1,12 @@
 README.md
 pyproject.toml
+src/__init__.py
+src/mcg/__init__.py
+src/mgre/__init__.py
+src/micd/__init__.py
+src/mrec/__init__.py
+src/mrm/__init__.py
+src/rpa/__init__.py
 src/veridical_mind_core.egg-info/PKG-INFO
 src/veridical_mind_core.egg-info/SOURCES.txt
 src/veridical_mind_core.egg-info/dependency_links.txt
