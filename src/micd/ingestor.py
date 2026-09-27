@@ -1,13 +1,14 @@
 ﻿from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from uuid import NAMESPACE_URL, uuid5
 
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct
 
 from src.micd.chunker import chunk_document
-from src.micd.models import ICD, UDV
+from src.micd.models import DocumentVersion, ICD, UDV
 
 
 @dataclass(frozen=True)
@@ -15,6 +16,7 @@ class IngestionResult:
     document_id: str
     source_version: str
     icd: float
+    ingestion_timestamp: str
     udvs: list[UDV]
 
 
@@ -22,13 +24,17 @@ class DocumentIngestor:
     """
     MICD Sprint 1 ingestion component.
 
-    Responsibilities:
-    - accept a source document
-    - compute ICD once for that document/version
-    - create semantic/propositional UDV chunks
-    - propagate immutable ICD to every UDV
-    - embed each UDV
-    - persist UDV content + provenance + ICD in Qdrant
+    Source document/version
+        ↓
+    human-assigned ICD
+        ↓
+    semantic/propositional chunks
+        ↓
+    UDV + immutable provenance
+        ↓
+    embedding
+        ↓
+    Qdrant
     """
 
     def __init__(
@@ -66,8 +72,21 @@ class DocumentIngestor:
         if not chunks:
             raise ValueError("document produced no UDV chunks")
 
-        icd_value = icd.value
+        ingestion_timestamp = datetime.now(timezone.utc).isoformat()
         base_metadata = dict(metadata or {})
+        icd_value = icd.value
+
+        document_version = DocumentVersion(
+            document_id=document_id,
+            source_version=source_version,
+            source_type=source_type,
+            icd=icd_value,
+            icd_authenticity=icd.authenticity,
+            icd_completeness=icd.completeness,
+            icd_consensus=icd.consensus,
+            ingestion_timestamp=ingestion_timestamp,
+            metadata=base_metadata,
+        )
 
         udvs: list[UDV] = []
         points: list[PointStruct] = []
@@ -75,39 +94,42 @@ class DocumentIngestor:
         for index, chunk in enumerate(chunks):
             udv_id = f"{document_id}:{source_version}:{index}"
 
+            vector = self.embedding_provider.embed(chunk)
+
             udv_metadata = {
-                **base_metadata,
-                "document_id": document_id,
-                "source_version": source_version,
+                **document_version.metadata,
+                "document_id": document_version.document_id,
+                "source_version": document_version.source_version,
                 "chunk_index": index,
-                "icd_authenticity": icd.authenticity,
-                "icd_completeness": icd.completeness,
-                "icd_consensus": icd.consensus,
+                "icd_authenticity": document_version.icd_authenticity,
+                "icd_completeness": document_version.icd_completeness,
+                "icd_consensus": document_version.icd_consensus,
             }
 
             udv = UDV(
                 id=udv_id,
                 content=chunk,
+                vector=vector,
                 source_doc=document_id,
                 source_type=source_type,
                 icd=icd_value,
+                ingestion_timestamp=ingestion_timestamp,
                 metadata=udv_metadata,
             )
-
-            vector = self.embedding_provider.embed(chunk)
 
             point_id = str(uuid5(NAMESPACE_URL, udv_id))
 
             points.append(
                 PointStruct(
                     id=point_id,
-                    vector=vector,
+                    vector=udv.vector,
                     payload={
                         "udv_id": udv.id,
                         "content": udv.content,
                         "source_doc": udv.source_doc,
                         "source_type": udv.source_type,
                         "icd": udv.icd,
+                        "ingestion_timestamp": udv.ingestion_timestamp,
                         "metadata": udv.metadata,
                     },
                 )
@@ -125,5 +147,6 @@ class DocumentIngestor:
             document_id=document_id,
             source_version=source_version,
             icd=icd_value,
+            ingestion_timestamp=ingestion_timestamp,
             udvs=udvs,
         )

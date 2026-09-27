@@ -3,6 +3,8 @@ from src.micd.models import ICD
 
 
 class FakeEmbeddingProvider:
+    dimension = 3
+
     def embed(self, text: str) -> list[float]:
         return [float(len(text)), 1.0, 2.0]
 
@@ -11,7 +13,7 @@ class FakeQdrant:
     def __init__(self):
         self.calls = []
 
-    def upsert(self, *, collection_name, points, wait):
+    def upsert(self, collection_name, points, wait=True):
         self.calls.append(
             {
                 "collection_name": collection_name,
@@ -21,12 +23,12 @@ class FakeQdrant:
         )
 
 
-def test_ingestion_propagates_single_icd_to_all_udvs():
+def test_ingestion_stores_vector_timestamp_and_provenance():
     qdrant = FakeQdrant()
 
     ingestor = DocumentIngestor(
         qdrant_client=qdrant,
-        collection_name="veridical_udv",
+        collection_name="test_collection",
         embedding_provider=FakeEmbeddingProvider(),
     )
 
@@ -40,9 +42,8 @@ def test_ingestion_propagates_single_icd_to_all_udvs():
         document_id="doc-001",
         source_version="v1",
         content=(
-            "This is the first historical proposition. "
-            "It contains documentary information.\n\n"
-            "This is a second historical proposition."
+            "First historical proposition.\n\n"
+            "Second historical proposition."
         ),
         source_type="historical_document",
         icd=icd,
@@ -52,22 +53,41 @@ def test_ingestion_propagates_single_icd_to_all_udvs():
     assert result.document_id == "doc-001"
     assert result.source_version == "v1"
     assert result.icd == icd.value
+    assert result.ingestion_timestamp
     assert len(result.udvs) == 2
 
-    assert all(udv.icd == icd.value for udv in result.udvs)
-    assert all(udv.source_doc == "doc-001" for udv in result.udvs)
-    assert all(udv.metadata["source_version"] == "v1" for udv in result.udvs)
+    for udv in result.udvs:
+        assert udv.vector == [float(len(udv.content)), 1.0, 2.0]
+        assert udv.ingestion_timestamp == result.ingestion_timestamp
+        assert udv.icd == icd.value
+        assert udv.source_doc == "doc-001"
+        assert udv.source_type == "historical_document"
+        assert udv.metadata["document_id"] == "doc-001"
+        assert udv.metadata["source_version"] == "v1"
+        assert udv.metadata["origin"] == "synthetic-test"
 
     assert len(qdrant.calls) == 1
-    assert len(qdrant.calls[0]["points"]) == 2
+    assert qdrant.calls[0]["wait"] is True
+
+    stored_points = qdrant.calls[0]["points"]
+    assert len(stored_points) == 2
+
+    for point in stored_points:
+        assert point.payload["udv_id"]
+        assert point.payload["content"]
+        assert point.payload["source_doc"] == "doc-001"
+        assert point.payload["source_type"] == "historical_document"
+        assert point.payload["icd"] == icd.value
+        assert point.payload["ingestion_timestamp"] == result.ingestion_timestamp
+        assert point.payload["metadata"]["source_version"] == "v1"
 
 
-def test_new_document_version_has_independent_ingestion_identity():
+def test_different_source_versions_create_independent_identity_and_icd():
     qdrant = FakeQdrant()
 
     ingestor = DocumentIngestor(
         qdrant_client=qdrant,
-        collection_name="veridical_udv",
+        collection_name="test_collection",
         embedding_provider=FakeEmbeddingProvider(),
     )
 
@@ -99,7 +119,12 @@ def test_new_document_version_has_independent_ingestion_identity():
         icd=icd_v2,
     )
 
+    assert result_v1.document_id == result_v2.document_id
+    assert result_v1.source_version == "v1"
+    assert result_v2.source_version == "v2"
+
     assert result_v1.udvs[0].id != result_v2.udvs[0].id
-    assert result_v1.icd != result_v2.icd
-    assert result_v1.udvs[0].icd == icd_v1.value
-    assert result_v2.udvs[0].icd == icd_v2.value
+    assert result_v1.icd == 1.0
+    assert result_v2.icd == 0.5
+    assert result_v1.udvs[0].icd == 1.0
+    assert result_v2.udvs[0].icd == 0.5
