@@ -12,3 +12,5 @@ data/processed/
 *.log
 
 *.egg-info/
+
+qdrant_storage/
