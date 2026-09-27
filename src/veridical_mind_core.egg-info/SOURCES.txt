@@ -1,0 +1,7 @@
+README.md
+pyproject.toml
+src/veridical_mind_core.egg-info/PKG-INFO
+src/veridical_mind_core.egg-info/SOURCES.txt
+src/veridical_mind_core.egg-info/dependency_links.txt
+src/veridical_mind_core.egg-info/requires.txt
+src/veridical_mind_core.egg-info/top_level.txt
