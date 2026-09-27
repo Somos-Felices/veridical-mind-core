@@ -30,18 +30,6 @@ class RPA:
 
 
 class GenerationGateway:
-    """
-    Generation Control Gateway.
-
-    The gateway is the physical generation boundary:
-    - Category A -> LLM permitted
-    - Category B -> LLM permitted with epistemic qualification
-    - Category C -> LLM physically suppressed and RPA returned
-
-    MRM is recorded inside the gateway so every control decision produces
-    an auditable trace.
-    """
-
     def __init__(
         self,
         llm_client: LLMClient,
@@ -62,6 +50,7 @@ class GenerationGateway:
         query: str,
         ranked_udvs: list[RankedUDV],
         prompt: str,
+        query_vector: list[float] | None = None,
     ) -> GatewayResponse:
 
         ir_values = [udv.ir for udv in ranked_udvs]
@@ -87,29 +76,39 @@ class GenerationGateway:
         ]
 
         if decision.category == "C":
-            response = RPA.respond()
-
             trace = self.mrm_logger.record(
-                category=decision.category,
+                query_vector=query_vector,
+                category="C",
                 source_ids=source_ids,
                 ir_max=decision.ir_max,
                 ir_avg=decision.ir_avg,
-                icr=decision.icr,
+                icr=None,
                 latency_ms=decision_latency_ms,
                 llm_invoked=False,
             )
 
             return GatewayResponse(
                 category="C",
-                response=response,
+                response=RPA.respond(),
                 llm_invoked=False,
                 icr=None,
                 trace=trace,
             )
 
-        response = self.llm_client.generate(prompt)
+        generation_prompt = prompt
+
+        if decision.category == "B":
+            generation_prompt = (
+                "[EPISTEMIC QUALIFICATION] The available documentary evidence "
+                "is partial or non-conclusive. Clearly distinguish documented "
+                "evidence from inference and avoid presenting inference as fact. "
+                f"ICR={decision.icr}\n\n{prompt}"
+            )
+
+        response = self.llm_client.generate(generation_prompt)
 
         trace = self.mrm_logger.record(
+            query_vector=query_vector,
             category=decision.category,
             source_ids=source_ids,
             ir_max=decision.ir_max,

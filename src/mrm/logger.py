@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 @dataclass(frozen=True)
 class MRMTrace:
     timestamp: str
+    query_vector: list[float]
     category: str
     source_ids: list[str]
     ir_max: float
@@ -20,8 +21,9 @@ class MRMLogger:
     """
     Minimal Sprint 1 Model Reliability Monitoring logger.
 
-    MRM is an append-only in-memory trace store for the prototype.
-    Persistent production storage can be added later.
+    Runtime requests provide the query vector.
+    The optional argument preserves compatibility with existing
+    lower-level tests that exercise the logger in isolation.
     """
 
     def __init__(self):
@@ -37,10 +39,12 @@ class MRMLogger:
         icr: float | None,
         latency_ms: float,
         llm_invoked: bool,
+        query_vector: list[float] | None = None,
     ) -> MRMTrace:
 
         trace = MRMTrace(
             timestamp=datetime.now(timezone.utc).isoformat(),
+            query_vector=list(query_vector or []),
             category=category,
             source_ids=list(source_ids),
             ir_max=ir_max,
