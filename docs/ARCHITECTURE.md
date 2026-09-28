@@ -1,37 +1,64 @@
-# Architecture
+﻿# Architecture
 
 ## Pipeline
 
-Document -> MICD / UDV ingestion -> Qdrant -> retrieval -> IR -> MCG -> LLM or RPA -> MRM
+Document
+→ MICD ingestion
+→ UDV creation
+→ ICD metadata
+→ vector storage
+→ MREC retrieval
+→ IR ranking
+→ MCG classification
+→ generation or RPA
+→ MRM trace
 
 ## MICD
 
-MICD handles document ingestion and creation of Verifiable Document Units (UDVs). Each UDV retains source document, source version, source type, ICD, ingestion timestamp, content, vector and metadata.
+MICD creates immutable document versions and semantic UDV units.
 
-## ICD
+Each UDV inherits the ICD associated with its source document version.
 
-ICD is assigned during source-document ingestion from Authenticity (A), Completeness (C), and Consensus (K). It propagates as immutable metadata to UDVs from that document version. A/C/K changes create a new document version.
+A source-document change creates a new version; historical ICD values are not mutated.
 
-## MREC and IR
+## MREC
 
-IR = ICD * cosine_similarity(query, UDV)
+MREC retrieves candidate UDVs using semantic similarity.
 
-TOP_K = 10.
+Information Relevance is:
+
+`IR = ICD × cosine_similarity`
+
+The current implementation preserves cosine similarity directly.
 
 ## MCG
 
-A: sufficient documentary support; LLM generation allowed.
+MCG operates before LLM generation.
 
-B: partial or non-conclusive support; LLM generation allowed with qualification.
+- Category A: sufficient documentary support; generation permitted.
+- Category B: partial/non-conclusive support; generation permitted with epistemic qualification.
+- Category C: insufficient support; LLM invocation is suppressed and RPA responds.
 
-C: insufficient support; LLM invocation is suppressed and RPA responds.
-
-Category B uses the arithmetic mean of the selected top-K IR values. ICR = sum(IR_k^2) / sum(IR_k).
+Category C is therefore a control-flow decision, not merely a response-generation instruction.
 
 ## MRM
 
-MRM records category, source IDs, IR metrics, ICR where applicable, latency and whether the LLM was invoked.
+MRM records the classification decision and associated metrics.
 
-## Security Boundary
+The runtime trace includes:
 
-The technical core is private and must not expose patent-sensitive architecture, source code, confidential corpus material or credentials through the public Somos Felices website.
+- timestamp
+- query vector
+- category
+- source IDs
+- IR maximum
+- IR average
+- ICR where applicable
+- classification latency
+- LLM invocation status
+
+Raw query text is not required in the MRM trace.
+
+## Development limitations
+
+Current local development components include a local embedding model and development LLM stub. These are implementation/testing choices and are not final production-provider decisions.
