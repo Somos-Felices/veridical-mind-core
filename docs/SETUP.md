@@ -1,1 +1,31 @@
-﻿# Setup Guide`n`n## Requirements`n`n- Python 3.11`n- Docker Desktop`n- Git`n`n## Python Environment`n`n    py -3.11 -m venv .venv`n    .\.venv\Scripts\Activate.ps1`n    pip install -e .`n`n## Qdrant`n`nStart the existing local Qdrant container with: `docker start veridical-qdrant``n`nQdrant: http://localhost:6333`n`n## Tests`n`n    python -m pytest -q`n`n## Integration Smoke Test`n`n    python scripts/smoke_micd_retrieval_integration.py`n`n## FastAPI`n`n    uvicorn src.main:app --reload`n`nHealth endpoint: http://127.0.0.1:8000/health`n`n## Secrets`n`nKeep credentials in .env or the approved secret manager. Never commit .env, API keys, credentials, or confidential project data.
+﻿# Setup Guide
+
+## Requirements
+
+1. Python 3.11
+2. Docker Desktop
+3. Git
+
+## Existing Environment
+
+Use the existing .venv. Do not recreate the environment unless explicitly required.
+
+## Qdrant
+
+The project uses the existing local veridical-qdrant container on port 6333.
+
+## Tests
+
+    python -m pytest -q
+
+## FastAPI
+
+    uvicorn src.main:app --reload
+
+## Health
+
+http://127.0.0.1:8000/health
+
+## Secrets
+
+Keep credentials in .env or the approved secret manager. Never commit .env, API keys, credentials, confidential corpus data or protected source material.
