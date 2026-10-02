@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from time import perf_counter
 from typing import Protocol
 
+from src.config.mcg import MCGConfig
 from src.mcg.classifier import MCGDecision, classify
 from src.mrec.ir import RankedUDV
 from src.mrm.logger import MRMLogger
@@ -39,15 +40,35 @@ class GenerationGateway:
         self,
         llm_client: LLMClient,
         mrm_logger: MRMLogger,
-        theta_a: float,
-        theta_b: float,
-        top_k: int = 10,
+        config: MCGConfig | None = None,
+        theta_a: float | None = None,
+        theta_b: float | None = None,
+        top_k: int | None = None,
     ):
         self.llm_client = llm_client
         self.mrm_logger = mrm_logger
-        self.theta_a = theta_a
-        self.theta_b = theta_b
-        self.top_k = top_k
+
+        if config is not None:
+            if any(value is not None for value in (theta_a, theta_b, top_k)):
+                raise ValueError(
+                    "provide either config or legacy threshold arguments, not both"
+                )
+            self.config = config
+        else:
+            if theta_a is None or theta_b is None:
+                raise ValueError(
+                    "config or both theta_a and theta_b are required"
+                )
+
+            self.config = MCGConfig(
+                theta_a=theta_a,
+                theta_b=theta_b,
+                top_k=10 if top_k is None else top_k,
+            )
+
+    @property
+    def top_k(self) -> int:
+        return self.config.top_k
 
     def handle(
         self,
@@ -64,9 +85,9 @@ class GenerationGateway:
 
         decision: MCGDecision = classify(
             ir_values,
-            theta_a=self.theta_a,
-            theta_b=self.theta_b,
-            top_k=self.top_k,
+            theta_a=self.config.theta_a,
+            theta_b=self.config.theta_b,
+            top_k=self.config.top_k,
         )
 
         decision_latency_ms = (perf_counter() - decision_start) * 1000.0
@@ -77,7 +98,7 @@ class GenerationGateway:
                 ranked_udvs,
                 key=lambda item: item.ir,
                 reverse=True,
-            )[: self.top_k]
+            )[: self.config.top_k]
         ]
 
         if decision.category == "C":

@@ -46,9 +46,7 @@ mcg_config = load_mcg_config()
 gateway = GenerationGateway(
     llm_client=StubLLMClient(),
     mrm_logger=mrm_logger,
-    theta_a=mcg_config.theta_a,
-    theta_b=mcg_config.theta_b,
-    top_k=mcg_config.top_k,
+    config=mcg_config,
 )
 
 query_service = QueryService(
