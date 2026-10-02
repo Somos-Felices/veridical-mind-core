@@ -22,6 +22,10 @@ Development MCG thresholds are configurable and are not final project thresholds
 
 ICD weights are not final project weights until technical alignment is completed.
 
+## Sprint 1 Validation
+
+The local A/B/C gateway paths have been exercised with controlled evidence. Category C physically suppresses the LLM and records llm_invoked=false. A and B invoke the LLM at temperature 0.0, with B applying epistemic qualification. A provisional corpus has also been exercised through retrieval, IR and MCG without treating it as authoritative.
+
 ## Pending Alignment
 
 - Final ICD weights p_A, p_C and p_K.

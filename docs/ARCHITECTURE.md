@@ -64,6 +64,10 @@ The runtime trace includes:
 
 Raw query text is not required in the MRM trace.
 
+## Provisional engineering validation
+
+A local provisional corpus has been exercised through MICD, UDV creation, local embeddings, Qdrant retrieval, IR ranking, MCG A/B/C control and MRM logging. The provisional corpus is explicitly non-authoritative and is excluded from the governed corpus until project-owner and historian inputs are available.
+
 ## Development limitations
 
 Current local development components include a local embedding model and development LLM stub. These are implementation/testing choices and are not final production-provider decisions.

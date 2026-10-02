@@ -35,7 +35,7 @@ See docs/SETUP.md for local setup and test commands.
 
 ## Validation
 
-The current local validation includes the unit/integration/acceptance test suite, corpus-governance validation, embedding validation, a repeatable MCG latency benchmark, and a live MICD -> Qdrant -> retrieval -> IR -> MCG runtime smoke test.
+The current local validation includes 69 automated tests, corpus-governance validation, embedding validation, a repeatable MCG latency benchmark, and live MICD -> Qdrant -> retrieval -> IR -> MCG runtime validation. A provisional corpus has also been exercised through the complete retrieval -> IR -> MCG -> MRM path, including physical Category C LLM suppression. The provisional corpus is not authoritative project evidence.
 
 ## Security
 

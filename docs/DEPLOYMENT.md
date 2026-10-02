@@ -47,6 +47,12 @@ Before production deployment:
 9. Verify Category C produces no LLM request.
 10. Perform latency and operational validation.
 
+## Local Sprint 1 Validation
+
+The current local implementation has passed 69 automated tests. The end-to-end provisional path has been exercised through retrieval, IR, MCG and MRM, including isolated Category C suppression with measured classification latency below 50 ms.
+
+This validation does not constitute official corpus acceptance.
+
 ## Current blockers
 
 The following require external/project-owner inputs and are intentionally not invented locally:
