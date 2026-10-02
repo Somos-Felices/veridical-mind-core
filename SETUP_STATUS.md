@@ -1,4 +1,4 @@
-﻿# Setup Status
+# Setup Status
 
 Current local engineering state for Veridical Mind Core.
 
@@ -18,17 +18,20 @@ Current local engineering state for Veridical Mind Core.
 12. MRM trace logging is implemented.
 13. Integrated query service is implemented.
 14. FastAPI `/health` and `/query` endpoints are operational.
-15. Full local test suite: 54 passed.
+15. Full local test suite: 63 passed.
 16. Live `/health` check: successful.
 17. Live `/query` smoke test: successful with Category C and `llm_invoked=false`.
+18. Exact working Python dependency versions are captured in `requirements.lock.txt`.
 
 ## Latency Validation
 
-1. Repeatable MCG classification benchmark is available at scripts/benchmark_mcg_latency.py.
+1. Repeatable MCG classification benchmark is available at `scripts/benchmark_mcg_latency.py`.
 2. Benchmark uses 1000 local classification iterations.
-3. Latest local benchmark p95: 0.006400 ms.
-4. Latest local benchmark maximum: 0.167200 ms.
-5. Latest benchmark result: p95 < 50 ms target passed.
+3. Latest local benchmark minimum: 0.003100 ms.
+4. Latest local benchmark mean: 0.004702 ms.
+5. Latest local benchmark p95: 0.006100 ms.
+6. Latest local benchmark maximum: 0.533700 ms.
+7. Latest benchmark result: p95 < 50 ms target passed.
 
 ## Current Development Configuration
 
@@ -57,4 +60,3 @@ Current local engineering state for Veridical Mind Core.
 The local implementation is ready for final Sprint 1 release validation. The official corpus and project-owner technical parameters remain external inputs and are not invented locally.
 
 No production deployment should be claimed until those inputs are available and the official acceptance cases have been executed.
-

@@ -1,4 +1,4 @@
-﻿# Setup Guide
+# Setup Guide
 
 ## Requirements
 
@@ -8,11 +8,15 @@
 
 ## Existing Environment
 
-Use the existing .venv. Do not recreate the environment unless explicitly required.
+Use the existing `.venv`. Do not recreate the environment unless explicitly required.
+
+The exact validated Python environment is captured in `requirements.lock.txt`.
 
 ## Qdrant
 
-The project uses the existing local veridical-qdrant container on port 6333.
+The project uses the existing local `veridical-qdrant` container on port 6333.
+
+The Qdrant collection is `veridical_udv` with 384-dimensional cosine vectors.
 
 ## Tests
 
@@ -30,11 +34,12 @@ The benchmark runs 1000 MCG classification iterations and reports minimum, mean,
 
     uvicorn src.main:app --reload
 
+This starts the local development server in the current terminal. For a live API check, keep the server running and use a second terminal.
+
 ## Health
 
 http://127.0.0.1:8000/health
 
 ## Secrets
 
-Keep credentials in .env or the approved secret manager. Never commit .env, API keys, credentials, confidential corpus data or protected source material.
-
+Keep credentials in `.env` or the approved secret manager. Never commit `.env`, API keys, credentials, confidential corpus data or protected source material.
