@@ -1,4 +1,4 @@
-from src.mcg.gateway import GenerationGateway
+﻿from src.mcg.gateway import GenerationGateway
 from src.mrec.embeddings import LocalEmbeddingProvider
 from src.mrec.retriever import QdrantRetriever
 from src.mrm.logger import MRMLogger
@@ -63,7 +63,7 @@ class FakeLLM:
     def __init__(self):
         self.calls = 0
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, *, temperature: float = 0.0) -> str:
         self.calls += 1
         return "integration response"
 
@@ -111,3 +111,4 @@ def test_query_service_connects_retrieval_gateway_and_mrm():
     assert abs(trace.ir_max - 0.4) < 1e-9
     assert abs(trace.ir_avg - 0.36) < 1e-9
     assert trace.query_vector == [1.0, 0.0, 0.0]
+

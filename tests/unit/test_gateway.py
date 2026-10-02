@@ -9,14 +9,18 @@ from src.mrm.logger import MRMLogger
 class MockLLM:
     calls: int = 0
     prompts: list[str] | None = None
+    temperatures: list[float] | None = None
 
     def __post_init__(self):
         if self.prompts is None:
             self.prompts = []
+        if self.temperatures is None:
+            self.temperatures = []
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, *, temperature: float = 0.0) -> str:
         self.calls += 1
         self.prompts.append(prompt)
+        self.temperatures.append(temperature)
         return "mock generated response"
 
 
@@ -57,6 +61,7 @@ def test_gateway_category_a_calls_llm_and_records_mrm():
     assert response.category == "A"
     assert response.llm_invoked is True
     assert llm.calls == 1
+    assert llm.temperatures == [0.0]
     assert response.icr is None
 
     assert len(mrm.records) == 1
@@ -96,6 +101,7 @@ def test_gateway_category_b_calls_llm_and_records_icr():
     assert response.category == "B"
     assert response.llm_invoked is True
     assert llm.calls == 1
+    assert llm.temperatures == [0.0]
     assert response.icr is not None
 
     trace = mrm.records[0]
@@ -135,6 +141,7 @@ def test_gateway_category_c_physically_suppresses_llm():
 
     assert llm.calls == 0
     assert llm.prompts == []
+    assert llm.temperatures == []
 
     assert "sufficient documentary evidence" in response.response
 

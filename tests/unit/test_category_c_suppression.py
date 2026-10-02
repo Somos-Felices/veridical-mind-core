@@ -7,7 +7,7 @@ class FakeLLM:
     def __init__(self):
         self.calls = 0
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, *, temperature: float = 0.0) -> str:
         self.calls += 1
         return "SHOULD NOT BE CALLED"
 
@@ -74,3 +74,4 @@ def test_category_c_physically_suppresses_llm():
     # MRM proof:
     assert result.trace.llm_invoked is False
     assert result.trace.category == "C"
+

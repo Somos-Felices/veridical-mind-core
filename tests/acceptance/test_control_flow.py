@@ -9,7 +9,7 @@ from src.mrm.logger import MRMLogger
 class MockLLM:
     calls: int = 0
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, *, temperature: float = 0.0) -> str:
         self.calls += 1
         return "generated"
 
@@ -86,3 +86,4 @@ def test_end_to_end_category_c_zero_llm_calls():
     assert trace.llm_invoked is False
     assert trace.icr is None
     assert trace.latency_ms < 50.0
+

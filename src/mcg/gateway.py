@@ -10,7 +10,12 @@ from src.mrm.logger import MRMLogger
 
 
 class LLMClient(Protocol):
-    def generate(self, prompt: str) -> str:
+    def generate(
+        self,
+        prompt: str,
+        *,
+        temperature: float = 0.0,
+    ) -> str:
         ...
 
 
@@ -105,7 +110,10 @@ class GenerationGateway:
                 f"ICR={decision.icr}\n\n{prompt}"
             )
 
-        response = self.llm_client.generate(generation_prompt)
+        response = self.llm_client.generate(
+            generation_prompt,
+            temperature=0.0,
+        )
 
         trace = self.mrm_logger.record(
             query_vector=query_vector,

@@ -7,7 +7,7 @@ class FakeLLM:
     def __init__(self):
         self.calls = []
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, *, temperature: float = 0.0) -> str:
         self.calls.append(prompt)
         return "generated response"
 
@@ -108,3 +108,4 @@ def test_gateway_category_c_blocks_llm_and_returns_rpa():
     )
     assert result.trace.category == "C"
     assert result.trace.llm_invoked is False
+

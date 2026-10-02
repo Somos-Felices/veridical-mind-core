@@ -12,7 +12,12 @@ from src.service.query_service import QueryService
 
 
 class StubLLMClient:
-    def generate(self, prompt: str) -> str:
+    def generate(
+        self,
+        prompt: str,
+        *,
+        temperature: float = 0.0,
+    ) -> str:
         return f"[DEV LLM RESPONSE] {prompt}"
 
 
