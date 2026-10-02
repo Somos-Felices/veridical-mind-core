@@ -1,6 +1,7 @@
 ﻿import os
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class MCGConfig:
     theta_a: float
@@ -8,10 +9,18 @@ class MCGConfig:
     top_k: int = 10
 
     def __post_init__(self):
+        if not 0 <= self.theta_b <= 1:
+            raise ValueError("theta_b must be between 0 and 1")
+
+        if not 0 <= self.theta_a <= 1:
+            raise ValueError("theta_a must be between 0 and 1")
+
         if self.theta_a < self.theta_b:
             raise ValueError("theta_a must be >= theta_b")
+
         if self.top_k < 1:
             raise ValueError("top_k must be >= 1")
+
 
 def load_mcg_config() -> MCGConfig:
     return MCGConfig(
