@@ -20,3 +20,6 @@ __all__ = [
     "ICD",
     "UDV",
 ]
+from src.micd.corpus_ingestor import CorpusIngestor
+
+__all__ = ["CorpusIngestor"]
