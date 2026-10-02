@@ -1,4 +1,4 @@
-# Setup Status
+﻿# Setup Status
 
 Current local engineering state for Veridical Mind Core.
 
@@ -15,10 +15,10 @@ Current local engineering state for Veridical Mind Core.
 9. MCG A/B/C classification is implemented.
 10. Category C physically suppresses LLM invocation.
 11. RPA fallback is implemented.
-12. MRM trace logging is implemented.
+12. MRM trace logging and structured JSONL persistence are implemented.
 13. Integrated query service is implemented.
 14. FastAPI `/health` and `/query` endpoints are operational.
-15. Full local test suite: 63 passed.
+15. Full local test suite: 69 passed.
 16. Live `/health` check: successful.
 17. Live `/query` smoke test: successful with Category C and `llm_invoked=false`.
 18. Exact working Python dependency versions are captured in `requirements.lock.txt`.
@@ -28,9 +28,9 @@ Current local engineering state for Veridical Mind Core.
 1. Repeatable MCG classification benchmark is available at `scripts/benchmark_mcg_latency.py`.
 2. Benchmark uses 1000 local classification iterations.
 3. Latest local benchmark minimum: 0.003100 ms.
-4. Latest local benchmark mean: 0.004702 ms.
-5. Latest local benchmark p95: 0.006100 ms.
-6. Latest local benchmark maximum: 0.533700 ms.
+4. Latest local benchmark mean: 0.003301 ms.
+5. Latest local benchmark p95: 0.003400 ms.
+6. Latest local benchmark maximum: 0.022900 ms.
 7. Latest benchmark result: p95 < 50 ms target passed.
 
 ## Current Development Configuration
@@ -57,6 +57,6 @@ Current local engineering state for Veridical Mind Core.
 
 ## Release State
 
-The local implementation is ready for final Sprint 1 release validation. The official corpus and project-owner technical parameters remain external inputs and are not invented locally.
+The local implementation has completed independent Sprint 1 engineering validation. The official corpus and project-owner technical parameters remain external inputs and are not invented locally.
 
 No production deployment should be claimed until those inputs are available and the official acceptance cases have been executed.
