@@ -1,4 +1,4 @@
-﻿from src.mrec.retriever import QdrantRetriever
+from src.mrec.retriever import QdrantRetriever
 
 
 class FakeEmbeddingProvider:
@@ -22,7 +22,7 @@ class FakeQdrant:
     def query_points(self, *, collection_name, query, limit, with_payload):
         assert collection_name == "veridical_udv"
         assert query == [1.0, 0.0, 0.0]
-        assert limit == 10
+        assert limit >= 1
         assert with_payload is True
 
         return FakeQueryResponse(
@@ -51,7 +51,7 @@ class FakeQdrant:
                         "metadata": {"source_version": "v1"},
                     },
                 ),
-            ]
+            ][:limit]
         )
 
 
@@ -95,3 +95,16 @@ def test_empty_query_is_rejected():
         assert False, "Expected ValueError"
     except ValueError as exc:
         assert "query" in str(exc)
+
+def test_retriever_respects_custom_top_k():
+    retriever = QdrantRetriever(
+        qdrant_client=FakeQdrant(),
+        collection_name="veridical_udv",
+        embedding_provider=FakeEmbeddingProvider(),
+    )
+
+    result = retriever.retrieve("historical query", top_k=1)
+
+    assert len(result.results) == 1
+    assert result.results[0].id == "doc-001:v1:0"
+    assert abs(result.results[0].ir - 0.72) < 1e-9

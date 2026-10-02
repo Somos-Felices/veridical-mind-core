@@ -13,6 +13,7 @@ Document -> MICD / UDV ingestion -> Qdrant -> retrieval -> IR -> MCG -> LLM or R
 ## Current Components
 
 - MICD / UDV ingestion
+- Corpus source governance and validation
 - ICD provenance and versioning
 - Qdrant retrieval
 - IR calculation
@@ -34,7 +35,7 @@ See docs/SETUP.md for local setup and test commands.
 
 ## Validation
 
-The current local validation includes the unit/integration test suite and a MICD -> Qdrant -> retrieval -> IR smoke test covering provenance and document-version immutability.
+The current local validation includes the unit/integration/acceptance test suite, corpus-governance validation, embedding validation, and a live MICD -> Qdrant -> retrieval -> IR -> MCG runtime smoke test.
 
 ## Security
 

@@ -1,48 +1,51 @@
-﻿# Setup Status
+# Setup Status
 
-Repository checkpoint: 447a190
-Tests: 43 passed
+Current local engineering state for Veridical Mind Core.
 
-Engineering setup is complete from the local implementation side.
+## Current Validation
 
-## Completed
+1. Python 3.11 environment is operational.
+2. Existing local Qdrant container is operational.
+3. `veridical_udv` is green with 384-dimensional cosine vectors.
+4. Local `all-MiniLM-L6-v2` embedding provider is operational.
+5. MICD / UDV ingestion foundation is implemented.
+6. Corpus source governance validation is implemented.
+7. Immutable document versioning and ICD propagation are implemented.
+8. MREC retrieval and IR calculation are implemented.
+9. MCG A/B/C classification is implemented.
+10. Category C physically suppresses LLM invocation.
+11. RPA fallback is implemented.
+12. MRM trace logging is implemented.
+13. Integrated query service is implemented.
+14. FastAPI `/health` and `/query` endpoints are operational.
+15. Full local test suite: 53 passed.
+16. Live `/health` check: successful.
+17. Live `/query` smoke test: successful with Category C and `llm_invoked=false`.
 
-1. Private repository and Git hygiene
-2. Python 3.11 environment
-3. FastAPI foundation
-4. Local Qdrant infrastructure
-5. Local embedding provider
-6. MICD / UDV ingestion foundation
-7. ICD metadata propagation and immutable document versioning
-8. Chunking foundation
-9. MREC retrieval
-10. IR calculation
-11. TOP_K configuration
-12. MCG A/B/C classification
-13. Category C physical LLM suppression
-14. RPA fallback
-15. MRM trace logging
-16. Integrated query service
-17. FastAPI /query endpoint
-18. Unit, integration and acceptance tests
-19. Security and NDA repository hygiene
-20. Deployment documentation
-21. Clean checkout reproducibility
-22. Somos Felices frontend build
+## Current Development Configuration
+
+1. Local embeddings use `all-MiniLM-L6-v2`.
+2. Embedding dimension is 384.
+3. Local Qdrant uses collection `veridical_udv`.
+4. Development LLM path uses the local stub.
+5. MCG thresholds remain development configuration and are not final project thresholds.
+6. ICD weights remain development defaults and are not final project weights.
 
 ## External Inputs
 
-1. Approved 12 document Isidora Goyenechea corpus
-2. Source metadata and provenance
-3. Final A/C/K assignments
-4. Final ICD weights
-5. Final MCG thresholds
-6. Approved validation queries and expected categories
-7. Required external credentials and account access
-8. Production provider configuration
-9. Langfuse credentials when activated
-10. Hosting, DNS and email administration access
+1. Approved 12-document Isidora Goyenechea corpus.
+2. Source metadata and provenance.
+3. Final A/C/K assignments.
+4. Final ICD weights.
+5. Final MCG thresholds.
+6. Approved validation queries and expected categories.
+7. Required external credentials and account access.
+8. Production provider configuration.
+9. Langfuse credentials when activated.
+10. Hosting, DNS and email administration access.
 
-## Sprint 1
+## Release State
 
-Once the approved corpus and final technical parameters are available, Sprint 1 can begin directly. No environment rebuild is required.
+The local implementation is ready for final Sprint 1 release validation. The official corpus and project-owner technical parameters remain external inputs and are not invented locally.
+
+No production deployment should be claimed until those inputs are available and the official acceptance cases have been executed.

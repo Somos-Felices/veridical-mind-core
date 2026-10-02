@@ -1,8 +1,9 @@
-﻿# Architecture
+# Architecture
 
 ## Pipeline
 
 Document
+→ source governance validation
 → MICD ingestion
 → UDV creation
 → ICD metadata
@@ -12,6 +13,10 @@ Document
 → MCG classification
 → generation or RPA
 → MRM trace
+
+## Source governance
+
+Corpus manifests validate unique document/version identity and require complete A/C/K governance data before an approved source can enter the governed corpus.
 
 ## MICD
 

@@ -1,4 +1,4 @@
-﻿# Security and Confidentiality
+# Security and Confidentiality
 
 ## Repository rules
 
