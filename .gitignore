@@ -14,3 +14,5 @@ data/processed/
 *.egg-info/
 
 qdrant_storage/
+
+data/provisional/
