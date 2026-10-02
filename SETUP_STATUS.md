@@ -1,4 +1,4 @@
-﻿# Setup Status
+# Setup Status
 
 Current local engineering state for Veridical Mind Core.
 

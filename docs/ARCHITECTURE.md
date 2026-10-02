@@ -3,16 +3,16 @@
 ## Pipeline
 
 Document
-→ source governance validation
-→ MICD ingestion
-→ UDV creation
-→ ICD metadata
-→ vector storage
-→ MREC retrieval
-→ IR ranking
-→ MCG classification
-→ generation or RPA
-→ MRM trace
+-> source governance validation
+-> MICD ingestion
+-> UDV creation
+-> ICD metadata
+-> vector storage
+-> MREC retrieval
+-> IR ranking
+-> MCG classification
+-> generation or RPA
+-> MRM trace
 
 ## Source governance
 
@@ -32,7 +32,7 @@ MREC retrieves candidate UDVs using semantic similarity.
 
 Information Relevance is:
 
-`IR = ICD × cosine_similarity`
+`IR = ICD x cosine_similarity`
 
 The current implementation preserves cosine similarity directly.
 

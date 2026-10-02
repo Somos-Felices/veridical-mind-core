@@ -1,4 +1,4 @@
-﻿# Veridical Mind Core
+# Veridical Mind Core
 
 Private technical implementation for the Veridical Mind project.
 
@@ -44,4 +44,3 @@ Never commit API keys, credentials, confidential corpus material, source documen
 The public Somos Felices website is separate from this private technical core.
 
 Final ICD weights and MCG thresholds remain configurable until formally aligned.
-

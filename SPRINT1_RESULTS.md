@@ -30,11 +30,11 @@ Full test suite: 69 passed.
 MCG benchmark: 1000 iterations.
 
 Minimum: 0.003100 ms
-Mean: 0.003301 ms
-P95: 0.003400 ms
-Maximum: 0.022900 ms
+Mean: 0.003417 ms
+P95: 0.005100 ms
+Maximum: 0.025000 ms
 
-Latency target: P95 < 50 ms — passed.
+Latency target: P95 < 50 ms â€” passed.
 
 ## Acceptance Coverage
 
