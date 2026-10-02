@@ -1,4 +1,4 @@
-# Veridical Mind Core
+﻿# Veridical Mind Core
 
 Private technical implementation for the Veridical Mind project.
 
@@ -35,7 +35,7 @@ See docs/SETUP.md for local setup and test commands.
 
 ## Validation
 
-The current local validation includes the unit/integration/acceptance test suite, corpus-governance validation, embedding validation, and a live MICD -> Qdrant -> retrieval -> IR -> MCG runtime smoke test.
+The current local validation includes the unit/integration/acceptance test suite, corpus-governance validation, embedding validation, a repeatable MCG latency benchmark, and a live MICD -> Qdrant -> retrieval -> IR -> MCG runtime smoke test.
 
 ## Security
 
@@ -44,3 +44,4 @@ Never commit API keys, credentials, confidential corpus material, source documen
 The public Somos Felices website is separate from this private technical core.
 
 Final ICD weights and MCG thresholds remain configurable until formally aligned.
+
