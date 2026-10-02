@@ -1,7 +1,7 @@
 ﻿from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-
 from qdrant_client import QdrantClient
+import os
 
 from src.config.mcg import load_mcg_config
 from src.mcg.gateway import GenerationGateway
@@ -40,7 +40,9 @@ retriever = QdrantRetriever(
     embedding_provider=embedding_provider,
 )
 
-mrm_logger = MRMLogger()
+mrm_log_path = os.getenv("MRM_LOG_PATH")
+mrm_logger = MRMLogger(log_path=mrm_log_path)
+
 mcg_config = load_mcg_config()
 
 gateway = GenerationGateway(
