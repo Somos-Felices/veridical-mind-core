@@ -24,6 +24,7 @@ class StubLLMClient:
 class QueryRequest(BaseModel):
     query: str
     prompt: str | None = None
+    source_docs: list[str] | None = None
 
 
 app = FastAPI(title="Veridical Mind Core")
@@ -73,6 +74,7 @@ def query(request: QueryRequest):
         result = query_service.handle(
             query=request.query,
             prompt=request.prompt or request.query,
+            source_docs=request.source_docs,
         )
 
         return {
@@ -85,3 +87,4 @@ def query(request: QueryRequest):
 
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
