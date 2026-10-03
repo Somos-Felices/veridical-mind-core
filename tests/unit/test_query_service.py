@@ -23,7 +23,7 @@ class FakeQueryResponse:
 
 
 class FakeQdrant:
-    def query_points(self, *, collection_name, query, limit, with_payload):
+    def query_points(self, *, collection_name, query, limit, query_filter=None, with_payload=True):
         assert collection_name == "veridical_udv"
         assert query == [1.0, 0.0, 0.0]
         assert limit == 10
@@ -111,4 +111,5 @@ def test_query_service_connects_retrieval_gateway_and_mrm():
     assert abs(trace.ir_max - 0.4) < 1e-9
     assert abs(trace.ir_avg - 0.36) < 1e-9
     assert trace.query_vector == [1.0, 0.0, 0.0]
+
 
