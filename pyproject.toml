@@ -14,12 +14,9 @@ dependencies = [
     "openai",
     "qdrant-client",
     "sentence-transformers",
-    "pytest"
+    "pytest",
+    "langfuse",
 ]
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

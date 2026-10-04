@@ -1,4 +1,7 @@
-﻿from fastapi import FastAPI, HTTPException
+﻿from dotenv import load_dotenv
+load_dotenv()
+
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from qdrant_client import QdrantClient
 import os
@@ -8,6 +11,7 @@ from src.mcg.gateway import GenerationGateway
 from src.mrec.embeddings import LocalEmbeddingProvider
 from src.mrec.retriever import QdrantRetriever
 from src.mrm.logger import MRMLogger
+from src.observability.langfuse import create_langfuse_observer
 from src.service.query_service import QueryService
 
 
@@ -42,7 +46,11 @@ retriever = QdrantRetriever(
 )
 
 mrm_log_path = os.getenv("MRM_LOG_PATH")
-mrm_logger = MRMLogger(log_path=mrm_log_path)
+langfuse_observer = create_langfuse_observer()
+mrm_logger = MRMLogger(
+    log_path=mrm_log_path,
+    observer=langfuse_observer,
+)
 
 mcg_config = load_mcg_config()
 
@@ -87,4 +95,3 @@ def query(request: QueryRequest):
 
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
-

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from dataclasses import asdict, dataclass
@@ -28,9 +28,10 @@ class MRMLogger:
     Raw query text is never stored.
     """
 
-    def __init__(self, log_path: str | Path | None = None):
+    def __init__(self, log_path: str | Path | None = None, observer=None):
         self.records: list[MRMTrace] = []
         self.log_path = Path(log_path) if log_path else None
+        self.observer = observer
 
         if self.log_path:
             self.log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -64,6 +65,14 @@ class MRMLogger:
 
         if self.log_path:
             with self.log_path.open("a", encoding="utf-8") as handle:
-                handle.write(json.dumps(asdict(trace), separators=(",", ":")) + "\n")
+                handle.write(
+                    json.dumps(asdict(trace), separators=(",", ":")) + "\n"
+                )
+
+        if self.observer:
+            try:
+                self.observer.record(trace)
+            except Exception:
+                pass
 
         return trace
