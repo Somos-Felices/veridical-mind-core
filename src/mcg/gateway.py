@@ -1,10 +1,11 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from dataclasses import dataclass
 from time import perf_counter
 from typing import Protocol
 
 from src.config.mcg import MCGConfig
+from src.mcg.answerability import assess_answerability
 from src.mcg.classifier import MCGDecision, classify
 from src.mrec.ir import RankedUDV
 from src.mrm.logger import MRMLogger
@@ -44,9 +45,11 @@ class GenerationGateway:
         theta_a: float | None = None,
         theta_b: float | None = None,
         top_k: int | None = None,
+        answerability_enabled: bool = False,
     ):
         self.llm_client = llm_client
         self.mrm_logger = mrm_logger
+        self.answerability_enabled = answerability_enabled
 
         if config is not None:
             if any(value is not None for value in (theta_a, theta_b, top_k)):
@@ -100,6 +103,36 @@ class GenerationGateway:
                 reverse=True,
             )[: self.config.top_k]
         ]
+
+        # POC answerability gate.
+        # This is deliberately optional so existing Sprint 1
+        # gateway behavior and unit contracts remain unchanged.
+        if self.answerability_enabled:
+            answerability = assess_answerability(
+                query,
+                ranked_udvs,
+                evidence_k=min(self.config.top_k, 5),
+            )
+
+            if not answerability.sufficient:
+                trace = self.mrm_logger.record(
+                    query_vector=query_vector,
+                    category="C",
+                    source_ids=source_ids,
+                    ir_max=decision.ir_max,
+                    ir_avg=decision.ir_avg,
+                    icr=None,
+                    latency_ms=decision_latency_ms,
+                    llm_invoked=False,
+                )
+
+                return GatewayResponse(
+                    category="C",
+                    response=RPA.respond(),
+                    llm_invoked=False,
+                    icr=None,
+                    trace=trace,
+                )
 
         if decision.category == "C":
             trace = self.mrm_logger.record(
