@@ -1,4 +1,4 @@
-from dotenv import load_dotenv
+﻿from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI, HTTPException
@@ -84,7 +84,7 @@ app = FastAPI(title="Veridical Mind Core")
 embedding_provider = LocalEmbeddingProvider()
 
 qdrant_client = QdrantClient(
-    url="http://localhost:6333",
+    url=os.getenv("QDRANT_URL", "http://localhost:6333"),
 )
 
 retriever = QdrantRetriever(
@@ -165,4 +165,5 @@ def query(request: QueryRequest):
 
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
 
