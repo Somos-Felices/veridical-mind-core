@@ -58,6 +58,7 @@ gateway = GenerationGateway(
     llm_client=StubLLMClient(),
     mrm_logger=mrm_logger,
     config=mcg_config,
+    answerability_enabled=True,
 )
 
 query_service = QueryService(

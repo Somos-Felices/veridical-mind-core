@@ -25,9 +25,35 @@ class QueryService:
             source_docs=source_docs,
         )
 
+        # Ground generation in the documentary evidence actually
+        # retrieved by MREC. The gateway remains authoritative for
+        # answerability and LLM suppression.
+        evidence_items = retrieval.results[: min(self.gateway.top_k, 5)]
+
+        evidence_blocks = []
+        for item in evidence_items:
+            evidence_blocks.append(
+                f"[UDV {item.id}] "
+                f"[SOURCE {item.source_doc}]\n"
+                f"{item.content}"
+            )
+
+        grounded_prompt = (
+            "Answer the user's question ONLY from the supplied "
+            "documentary evidence. Do not use pretrained knowledge. "
+            "Do not invent facts. If the evidence does not support "
+            "a claim, do not present it as fact.\n\n"
+            "DOCUMENTARY EVIDENCE:\n"
+            + "\n\n".join(evidence_blocks)
+            + "\n\nUSER QUESTION:\n"
+            + query
+            + "\n\nINSTRUCTION:\n"
+            + prompt
+        )
+
         return self.gateway.handle(
             query=query,
             query_vector=query_vector,
             ranked_udvs=retrieval.results,
-            prompt=prompt,
+            prompt=grounded_prompt,
         )
