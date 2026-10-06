@@ -165,7 +165,7 @@ python-dotenv==1.2.3
     # via
     #   uvicorn
     #   veridical-mind-core (pyproject.toml)
-pywin32==312
+pywin32==312; sys_platform == 'win32'
     # via portalocker
 pyyaml==6.0.3
     # via
@@ -225,3 +225,4 @@ win32-setctime==1.2.0
     # via loguru
 wrapt==2.5.0
     # via langfuse
+
