@@ -1,4 +1,4 @@
-﻿from dotenv import load_dotenv
+from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI, HTTPException
@@ -85,6 +85,7 @@ embedding_provider = LocalEmbeddingProvider()
 
 qdrant_client = QdrantClient(
     url=os.getenv("QDRANT_URL", "http://localhost:6333"),
+    api_key=os.getenv("QDRANT_API_KEY"),
 )
 
 retriever = QdrantRetriever(
