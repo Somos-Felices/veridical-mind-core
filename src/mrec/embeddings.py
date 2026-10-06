@@ -1,5 +1,3 @@
-from sentence_transformers import SentenceTransformer
-
 class LocalEmbeddingProvider:
     def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
         self.model_name = model_name
@@ -11,5 +9,6 @@ class LocalEmbeddingProvider:
 
     def embed(self, text: str) -> list[float]:
         if self.model is None:
+            from sentence_transformers import SentenceTransformer
             self.model = SentenceTransformer(self.model_name)
         return self.model.encode(text, normalize_embeddings=False).tolist()
