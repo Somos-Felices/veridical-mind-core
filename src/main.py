@@ -31,6 +31,18 @@ class QueryRequest(BaseModel):
     source_docs: list[str] | None = None
 
 
+PUBLIC_POC_SOURCE_DOCS = [
+    "public-isidora-001",
+    "public-isidora-002",
+    "public-isidora-003",
+    "public-isidora-004",
+    "public-isidora-005",
+    "public-isidora-006",
+    "public-isidora-007",
+    "public-isidora-008",
+]
+
+
 app = FastAPI(title="Veridical Mind Core")
 
 embedding_provider = LocalEmbeddingProvider()
@@ -80,11 +92,25 @@ def health():
 @app.post("/query")
 def query(request: QueryRequest):
     try:
+        source_docs = (
+            request.source_docs
+            if request.source_docs is not None
+            else PUBLIC_POC_SOURCE_DOCS
+        )
+
         result = query_service.handle(
             query=request.query,
             prompt=request.prompt or request.query,
-            source_docs=request.source_docs,
+            source_docs=source_docs,
         )
+
+        trace = result.trace
+        if isinstance(trace, dict):
+            trace = {
+                key: value
+                for key, value in trace.items()
+                if key != "query_vector"
+            }
 
         return {
             "category": result.category,
@@ -92,8 +118,9 @@ def query(request: QueryRequest):
             "llm_invoked": result.llm_invoked,
             "icr": result.icr,
             "evidence": result.evidence,
-            "trace": result.trace,
+            "trace": trace,
         }
 
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
