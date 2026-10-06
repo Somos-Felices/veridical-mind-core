@@ -13,7 +13,7 @@ dependencies = [
     "python-dotenv",
     "openai",
     "qdrant-client",
-    "sentence-transformers",
+    "fastembed==0.8.1",
     "pytest",
     "langfuse",
 ]
@@ -21,3 +21,4 @@ dependencies = [
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+
