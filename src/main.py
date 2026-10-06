@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from qdrant_client import QdrantClient
 import os
@@ -80,6 +81,7 @@ PUBLIC_POC_SOURCE_DOCS = [
 
 
 app = FastAPI(title="Veridical Mind Core")
+app.add_middleware(CORSMiddleware, allow_origins=["https://somosfelices.com", "https://www.somosfelices.com"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 embedding_provider = LocalEmbeddingProvider()
 
