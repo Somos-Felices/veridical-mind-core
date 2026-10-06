@@ -96,6 +96,12 @@ def test_query_service_connects_retrieval_gateway_and_mrm():
     )
 
     assert result.category == "B"
+
+    assert result.evidence
+    assert result.evidence[0]["udv_id"] == "integration-001:v1:0"
+    assert result.evidence[0]["source_doc"] == "integration-001"
+    assert result.evidence[0]["content"] == "Partial documentary evidence."
+
     assert result.llm_invoked is True
     assert llm.calls == 1
 

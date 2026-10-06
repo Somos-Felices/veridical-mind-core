@@ -1,4 +1,4 @@
-﻿from dotenv import load_dotenv
+from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI, HTTPException
@@ -91,6 +91,7 @@ def query(request: QueryRequest):
             "response": result.response,
             "llm_invoked": result.llm_invoked,
             "icr": result.icr,
+            "evidence": result.evidence,
             "trace": result.trace,
         }
 

@@ -28,6 +28,7 @@ class GatewayResponse:
     llm_invoked: bool
     icr: float | None
     trace: object
+    evidence: list[dict]
 
 
 class RPA:
@@ -104,6 +105,23 @@ class GenerationGateway:
             )[: self.config.top_k]
         ]
 
+        evidence = [
+            {
+                "udv_id": udv.id,
+                "source_doc": udv.source_doc,
+                "source_type": udv.source_type,
+                "content": udv.content,
+                "similarity": udv.similarity,
+                "ir": udv.ir,
+                "metadata": udv.metadata,
+            }
+            for udv in sorted(
+                ranked_udvs,
+                key=lambda item: item.ir,
+                reverse=True,
+            )[: min(self.config.top_k, 5)]
+        ]
+
         # POC answerability gate.
         # This is deliberately optional so existing Sprint 1
         # gateway behavior and unit contracts remain unchanged.
@@ -132,6 +150,7 @@ class GenerationGateway:
                     llm_invoked=False,
                     icr=None,
                     trace=trace,
+                    evidence=evidence,
                 )
 
         if decision.category == "C":
@@ -152,6 +171,7 @@ class GenerationGateway:
                 llm_invoked=False,
                 icr=None,
                 trace=trace,
+                evidence=evidence,
             )
 
         generation_prompt = prompt
@@ -186,4 +206,5 @@ class GenerationGateway:
             llm_invoked=True,
             icr=decision.icr,
             trace=trace,
+            evidence=evidence,
         )
